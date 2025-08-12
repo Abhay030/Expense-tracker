@@ -12,7 +12,7 @@ const RecentIncomeWithChart = ({data , totalIncome}) => {
             name: item?.source,
             amount: item?.amount,
         }))
-
+        
         setChartData(dataArr)
     };
 

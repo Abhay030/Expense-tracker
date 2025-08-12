@@ -5,18 +5,12 @@ import { prepareIncomeBarChartData } from '../../utils/helper'
 
 const IncomeOverview = ({ transactions, onAddIncome }) => {
   const [chartData, setChartData] = useState([])
-
-  // useEffect(() => {
-  //   const result = prepareIncomeBarChartData(transactions)
-  //   setChartData(result)
-
-  //   return () => { };
-  // }, [transactions]);
-  useEffect(() => {
-  const result = prepareIncomeBarChartData(transactions);
-  console.log("Income chart data:", result);
-  setChartData(result);
-}, [transactions]);
+  // Prepare the chart data from transactions
+    useEffect(() => {
+    const result = prepareIncomeBarChartData(transactions);
+    console.log("Income chart data:", result);
+    setChartData(result);
+  }, [transactions]);
 
 
   return (
