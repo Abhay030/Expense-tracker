@@ -6,12 +6,18 @@ import { prepareIncomeBarChartData } from '../../utils/helper'
 const IncomeOverview = ({ transactions, onAddIncome }) => {
   const [chartData, setChartData] = useState([])
 
-  useEffect(() => {
-    const result = prepareIncomeBarChartData(transactions)
-    setChartData(result)
+  // useEffect(() => {
+  //   const result = prepareIncomeBarChartData(transactions)
+  //   setChartData(result)
 
-    return () => { };
-  }, [transactions]);
+  //   return () => { };
+  // }, [transactions]);
+  useEffect(() => {
+  const result = prepareIncomeBarChartData(transactions);
+  console.log("Income chart data:", result);
+  setChartData(result);
+}, [transactions]);
+
 
   return (
     <div className='card'>
@@ -29,7 +35,7 @@ const IncomeOverview = ({ transactions, onAddIncome }) => {
         </button>
       </div>
 
-      <div className="mt-10">
+      <div className="mt-10 w-full">
         <CustomBarChart
           data={chartData}
         />

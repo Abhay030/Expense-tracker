@@ -28,11 +28,10 @@ const Home = () => {
 
     try{
       const response = await axiosInstance.get(`${API_PATHS.DASHBOARD.GET_DATA}`)
-      // console.log("Dashboard Data: ", response.data);  // Log the dashboard data
+      console.log("Dashboard Data: ", response.data);  // Log the dashboard data
       
       if(response.data){
         setDashboardData(response.data);
-        console.log("Dashboard Data: ", response.data);  // Log the dashboard data
       }
     }
     catch(error){
@@ -94,12 +93,12 @@ const Home = () => {
           />
 
           <RecentIncomeWithChart
-            data={dashboardData?.last60DaysIncome?.Transactions?.slice(0,4) || []}
+            data={dashboardData?.last60DaysIncome?.transactions?.slice(0,4) || []}
             totalIncome = {dashboardData?.totalIncome || 0}
           />
 
           <RecentIncome
-            transaction = {dashboardData?.last60DaysIncome?.transactions || []}
+            transactions = {dashboardData?.last60DaysIncome?.transactions || []}
             onSeeMore={() => navigate("/income")}
           />
         </div>

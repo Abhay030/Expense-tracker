@@ -44,10 +44,16 @@ const CustomBarChart = ({ data }) => {
           <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#555" }} stroke="none" />
           <YAxis tick={{ fontSize: 12, fill: "#555" }} stroke="none" />
           <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="amount" radius={[10, 10, 0, 0]}>
-            {data.map((entry, index) => (
-              <Cell key={index} fill={getBarColor(index)} />
-            ))}
+          <Bar 
+            dataKey="amount" 
+            fill='#FF8042'
+            radius={[10, 10, 0, 0]}
+            activeDot={{r:8 , fill:'yellow'}}
+            activeStyle={{fill:'green'}}
+            >
+              {data.map((entry, index) => (
+                <Cell key={index} fill={getBarColor(index)} />
+              ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
@@ -56,3 +62,5 @@ const CustomBarChart = ({ data }) => {
 };
 
 export default CustomBarChart;
+
+CustomBarChart.jsx
