@@ -32,7 +32,7 @@ export const prepareExpensesBarChartData = (data = []) => {
     }))
 
     return chartData;
-}
+};
 
 export const prepareIncomeBarChartData = (data = []) => {
   if (!Array.isArray(data)) return [];
