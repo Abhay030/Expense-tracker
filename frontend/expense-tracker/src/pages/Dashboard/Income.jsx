@@ -24,6 +24,8 @@ const Income = () => {
   const fetchIncomeDetails = async () => {
     if (loading) return;
 
+    setLoading(true);
+
     try {
       const response = await axiosInstance.get(`${API_PATHS.INCOME.GET_ALL_INCOME}`)
 

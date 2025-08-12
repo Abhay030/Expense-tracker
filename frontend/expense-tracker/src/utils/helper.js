@@ -1,5 +1,4 @@
 import moment from "moment";
-// import moment from "moment";
 export const validationEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
