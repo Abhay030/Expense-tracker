@@ -13,8 +13,8 @@ const router = express.Router();
 
 router.post("/add", protect , addExpense);
 router.get("/getAllExpense", protect , getAllExpense);
-router.post("/downloadExpense", protect , downloadExpenseExcel);
-router.delete("/deleteExpense", protect, deleteExpense);
+router.post("/downloadexcel", protect , downloadExpenseExcel);
+router.delete("/:id", protect, deleteExpense);
 
 module.exports = router;
 
