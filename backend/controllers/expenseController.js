@@ -62,15 +62,15 @@ exports.downloadExpenseExcel = async (req, res) => {
         const expenses = await Expense.find({userId}).sort({date: -1});
 
         // prepare the data for excel
-        const data = expenses.map(expenses => ({
-            Source: expenses.source,
-            Amount: expenses.amount,
-            Date: expenses.date.toLocaleDateString(),
+        const data = expenses.map(expense => ({
+            Category: expense.category,
+            Amount: expense.amount,
+            Date: expense.date.toLocaleDateString(),
         }))
 
         const workbook = XLSX.utils.book_new();
         const worksheet = XLSX.utils.json_to_sheet(data);
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Incomes');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Expenses');
         XLSX.writeFile(workbook, 'expense_details.xlsx');
         res.download('expense_details.xlsx', (err) => {
             if (err) {
