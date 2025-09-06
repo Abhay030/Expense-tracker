@@ -8,9 +8,12 @@ import IncomeOverview from '../../components/Income/IncomeOverview';
 import Modal from '../../components/Modal';
 import AddIncomeForm from '../../components/Income/AddIncomeForm';
 import toast from 'react-hot-toast';
+import IncomeList from '../../components/Income/IncomeList';
+import DeleteAlert from '../../components/DeleteAlert';
+import { useUserAuth } from '../../hooks/useUserAuth';
 
 const Income = () => {
-
+  useUserAuth();
   const [incomeData, setIncomeData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [openDeleteAlert, setOpenDeleteAlert] = useState({
@@ -44,21 +47,21 @@ const Income = () => {
     const { source, amount, date, icon } = income;
 
     // Validtion check
-    if(!source.trim()){
+    if (!source.trim()) {
       toast.error("Source is required");
       return;
     }
 
-    if(!amount || isNaN(amount) || Number(amount) <= 0){
+    if (!amount || isNaN(amount) || Number(amount) <= 0) {
       toast.error("Amount should be a valid number greater than 0");
       return;
     }
-    if(!date){
+    if (!date) {
       toast.error("Date is required");
       return;
     }
 
-    try{
+    try {
       await axiosInstance.post(`${API_PATHS.INCOME.ADD_INCOME}`, {
         source,
         amount,
@@ -70,17 +73,26 @@ const Income = () => {
       toast.success("Income added successfully");
       fetchIncomeDetails(); // Refresh income details
     }
-    catch(error){
+    catch (error) {
       console.error("Error adding income:", error.response?.data?.message || error.message);
     }
   };
 
   // Handle Delete Income
-  const DeleteIncome = async (id) => { }
+  const DeleteIncome = async (id) => {
+    try {
+      await axiosInstance.delete(`${API_PATHS.INCOME.DELETE_INCOME(id)}`);
+      setOpenDeleteAlert({ show: false, data: null }); // Close the delete alert
+      toast.success("Income deleted successfully");
+      fetchIncomeDetails(); // Refresh income details
+    } catch (error) {
+      console.error("Error deleting income:", error.response?.data?.message || error.message);
+      toast.error("Failed to delete income");
+    }
+  }
 
   // Handle download income details
   const handleDownloadIncomeDetails = async () => { };
-
 
   useEffect(() => {
     fetchIncomeDetails();
@@ -94,10 +106,18 @@ const Income = () => {
         <div className="grid grid-cols-1 gap-6">
           <div className="">
             <IncomeOverview
-              transactions={incomeData}
+              transactions={incomeData?.incomes || []}
               onAddIncome={() => setOpenAddIncomeModal(true)}
             />
           </div>
+
+          <IncomeList
+            transactions={incomeData?.incomes || []}
+            oneDelete={(id) => {
+              setOpenDeleteAlert({ show: true, data: id });
+            }}
+            onDownload={handleDownloadIncomeDetails}
+          />
         </div>
 
         <Modal
@@ -106,6 +126,17 @@ const Income = () => {
           title="Add Income"
         >
           <AddIncomeForm onAddIncome={handleAddIncome} />
+        </Modal>
+
+        <Modal
+          isOpen={openDeleteAlert.show}
+          onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+          title="Delete Income"
+        >
+          <DeleteAlert
+            content="Are you sure you want to delete this income?"
+            onDelete={() => DeleteIncome(openDeleteAlert.data)}
+          />
         </Modal>
       </div>
     </DashboardLayout>
