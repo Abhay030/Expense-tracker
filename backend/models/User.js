@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema({
     profileImageUrl: {
         type: String,
         default: null
+    },
+    currency: {
+        type: String,
+        default: 'USD',
+        enum: ['USD', 'EUR', 'GBP', 'INR', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'SGD', 'AED', 'SAR', 'BRL', 'MXN', 'ZAR']
     }
 },
     {

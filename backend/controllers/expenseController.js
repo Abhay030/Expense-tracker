@@ -71,15 +71,16 @@ exports.downloadExpenseExcel = async (req, res) => {
         const workbook = XLSX.utils.book_new();
         const worksheet = XLSX.utils.json_to_sheet(data);
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Expenses');
-        XLSX.writeFile(workbook, 'expense_details.xlsx');
-        res.download('expense_details.xlsx', (err) => {
-            if (err) {
-                console.error('Error downloading file:', err);
-                res.status(500).send('Error downloading file');
-            } else {
-                console.log('File downloaded successfully');
-            }
-        });
+        
+        // Write to buffer instead of file
+        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+        
+        // Set headers for file download
+        res.setHeader('Content-Disposition', 'attachment; filename=expense_details.xlsx');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        
+        // Send the buffer
+        res.send(buffer);
     }
     catch(error){
         res.status(500).json({message: 'Error downloading expense excel' , error: error.message});
