@@ -6,6 +6,7 @@ import { API_PATHS } from '../../utils/apiPaths'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { LuTrendingUp, LuCircle, LuActivity, LuWallet } from 'react-icons/lu'
 import { addThousandsSeparator } from '../../utils/helper'
+import PredictionChart from '../../components/Predictions/PredictionChart'
 
 const Analytics = () => {
   useUserAuth()
@@ -199,6 +200,11 @@ const Analytics = () => {
             </div>
           </div>
         )}
+
+        {/* ML Expense Prediction */}
+        <div className='mb-6'>
+          <PredictionChart />
+        </div>
 
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
           {/* Spending Trends Chart */}

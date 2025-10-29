@@ -14,6 +14,9 @@ import ExpenseTransactions from '../../components/Dashboard/ExpenseTransactions'
 import Last30DaysExpenses from '../../components/Dashboard/Last30DaysExpenses';
 import RecentIncomeWithChart from '../../components/Dashboard/RecentIncomeWithChart';
 import RecentIncome from '../../components/Dashboard/RecentIncome';
+import AISummaryCard from '../../components/Dashboard/AISummaryCard';
+import PredictionChart from '../../components/Predictions/PredictionChart';
+
 const Home = () => {
   useUserAuth();
 
@@ -70,6 +73,16 @@ const Home = () => {
             value={addThousandsSeparator(dashboardData?.totalExpense)}
             color="bg-red-500"
           />        
+        </div>
+
+        {/* AI Summary Card */}
+        <div className='mt-6'>
+          <AISummaryCard />
+        </div>
+
+        {/* Expense Prediction */}
+        <div className='mt-6'>
+          <PredictionChart />
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mt-6'>

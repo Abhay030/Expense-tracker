@@ -10,6 +10,7 @@ export const API_PATHS = {
     },
     DASHBOARD: {
         GET_DATA: "/api/v1/dashboard",
+        AI_SUMMARY: "/api/v1/dashboard/ai-summary",
     },
     INCOME: {
          ADD_INCOME: "/api/v1/income/add",
@@ -22,6 +23,9 @@ export const API_PATHS = {
         GET_ALL_EXPENSE: "/api/v1/expense/getAllExpense",
         DELETE_EXPENSE:(expenseId) => `/api/v1/expense/${expenseId}`,
         DOWNLOAD_EXPENSE: `/api/v1/expense/downloadexcel`,
+        SUGGEST_CATEGORY: "/api/v1/expense/suggest-category",
+        GET_CATEGORIES: "/api/v1/expense/categories",
+        UPLOAD_RECEIPT: "/api/v1/expense/upload-receipt",
     },
     ANALYTICS: {
         SPENDING_TRENDS: "/api/v1/analytics/spending-trends",
@@ -29,6 +33,7 @@ export const API_PATHS = {
         INCOME_VS_EXPENSE: "/api/v1/analytics/income-vs-expense",
         SAVINGS_RATE: "/api/v1/analytics/savings-rate",
         YEAR_COMPARISON: "/api/v1/analytics/year-comparison",
+        PREDICTION: "/api/v1/analytics/prediction",
     },
     CURRENCY: {
         SUPPORTED: "/api/v1/currency/supported",

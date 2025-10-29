@@ -21,8 +21,10 @@ const Settings = () => {
   const fetchUserInfo = async () => {
     try {
       const response = await axiosInstance.get(API_PATHS.AUTH.GET_USER_INFO)
-      setUserInfo(response.data.user)
-      setSelectedCurrency(response.data.user.currency || 'USD')
+      if (response.data && response.data.user) {
+        setUserInfo(response.data.user)
+        setSelectedCurrency(response.data.user.currency || 'USD')
+      }
     } catch (error) {
       console.error('Error fetching user info:', error)
       toast.error('Failed to load user information')

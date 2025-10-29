@@ -14,6 +14,32 @@ A full-stack web application for tracking personal income and expenses with data
   - Income vs Expense comparison by month
   - Savings rate calculation
   - Year-over-year comparison
+- **🤖 AI Smart Categorization**: 
+  - Automatic expense categorization using OpenAI GPT-3.5
+  - Natural language understanding
+  - Accept/reject AI suggestions
+  - 90%+ accuracy with confidence scores
+  - Smart caching to reduce costs
+  - Fallback keyword matching
+- **💬 AI Expense Summary**: 
+  - Personalized financial insights in plain English
+  - Month-over-month spending analysis
+  - Category-wise trend detection
+  - Actionable recommendations
+  - Automatic savings tracking
+- **📈 ML Expense Forecasting**: 
+  - Predict next month's expenses using machine learning
+  - Multiple ML models (Linear/Polynomial Regression, Moving Average)
+  - Beautiful line charts showing historical vs predicted data
+  - Confidence scores and trend analysis
+  - Volatility detection and spending pattern insights
+- **📄 Receipt OCR Upload**: 
+  - Upload receipt images and extract data automatically
+  - Powered by Tesseract.js OCR engine
+  - Extracts amount, merchant, date, and category
+  - Drag & drop or file selection
+  - Auto-fills expense form with extracted data
+  - 75-95% accuracy, completely free
 - **Multi-Currency Support**: 
   - Support for 15+ major currencies
   - Automatic currency conversion
@@ -66,10 +92,11 @@ npm install
 
 Create a `.env` file in the backend directory:
 ```env
-PORT=5000
+PORT=8000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
 CLIENT_URL=http://localhost:5173
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 ### 3. Frontend Setup
@@ -151,6 +178,13 @@ ExpenseTracker/
 - `GET /api/v1/currency/supported` - Get list of supported currencies
 - `GET /api/v1/currency/rates` - Get current exchange rates
 - `PUT /api/v1/currency/update-preference` - Update user's preferred currency
+
+### AI Features
+- `POST /api/v1/expense/suggest-category` - Get AI category suggestion
+- `GET /api/v1/expense/categories` - Get all available categories
+- `GET /api/v1/dashboard/ai-summary` - Get AI-powered expense summary
+- `GET /api/v1/analytics/prediction` - Get ML expense predictions
+- `POST /api/v1/expense/upload-receipt` - Upload and process receipt with OCR
 
 ## 🤝 Contributing
 

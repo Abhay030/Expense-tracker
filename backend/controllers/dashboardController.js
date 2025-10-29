@@ -1,6 +1,7 @@
 const { Types, isValidObjectId } = require('mongoose'); // make sure you import these if needed
 const Income = require('../models/Income'); // adjust paths as needed
 const Expense = require('../models/Expense'); // adjust paths as needed
+const { generateExpenseSummary } = require('../services/aiSummaryService');
 
 exports.getDashBoardData = async (req, res) => {
     try {
@@ -75,5 +76,24 @@ exports.getDashBoardData = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+// Get AI-powered expense summary
+exports.getAIExpenseSummary = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        const summaryResult = await generateExpenseSummary(userId);
+        
+        res.json(summaryResult);
+        
+    } catch (error) {
+        console.error('Error getting AI summary:', error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error generating expense summary", 
+            error: error.message 
+        });
     }
 };
