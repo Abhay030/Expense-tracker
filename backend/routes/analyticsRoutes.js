@@ -4,7 +4,8 @@ const {
     getCategoryBreakdown,
     getIncomeVsExpenseByMonth,
     getSavingsRate,
-    getYearOverYearComparison
+    getYearOverYearComparison,
+    getExpensePrediction
 } = require("../controllers/analyticsController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -16,5 +17,6 @@ router.get("/category-breakdown", protect, getCategoryBreakdown);
 router.get("/income-vs-expense", protect, getIncomeVsExpenseByMonth);
 router.get("/savings-rate", protect, getSavingsRate);
 router.get("/year-comparison", protect, getYearOverYearComparison);
+router.get("/prediction", protect, getExpensePrediction);
 
 module.exports = router;

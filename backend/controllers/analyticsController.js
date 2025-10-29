@@ -1,6 +1,7 @@
 const { Types } = require('mongoose');
 const Income = require('../models/Income');
 const Expense = require('../models/Expense');
+const { generateExpensePrediction, generatePredictionInsights } = require('../services/predictionService');
 
 // Get spending trends (daily/weekly/monthly)
 exports.getSpendingTrends = async (req, res) => {
@@ -351,5 +352,35 @@ exports.getYearOverYearComparison = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error fetching year-over-year comparison", error: error.message });
+    }
+};
+
+// Get expense predictions using ML
+exports.getExpensePrediction = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        
+        // Generate prediction
+        const predictionData = await generateExpensePrediction(userId);
+        
+        if (!predictionData.success) {
+            return res.status(400).json(predictionData);
+        }
+        
+        // Generate insights
+        const insights = generatePredictionInsights(predictionData);
+        
+        res.json({
+            ...predictionData,
+            insights
+        });
+        
+    } catch (error) {
+        console.error('Prediction error:', error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error generating expense prediction", 
+            error: error.message 
+        });
     }
 };
