@@ -33,6 +33,12 @@ A full-stack web application for tracking personal income and expenses with data
   - Beautiful line charts showing historical vs predicted data
   - Confidence scores and trend analysis
   - Volatility detection and spending pattern insights
+- **📊 Advanced Analytics Charts**:
+  - **Expense Heatmap Calendar**: GitHub-style daily spending intensity map
+  - **Cash Flow Sankey Diagram**: Visual money flow from income to expenses
+  - **Cumulative Savings Growth**: Track your net worth journey over time
+  - Interactive tooltips and insights
+  - Pattern recognition and trend analysis
 - **📄 Receipt OCR Upload**: 
   - Upload receipt images and extract data automatically
   - Powered by Tesseract.js OCR engine
