@@ -7,6 +7,9 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { LuTrendingUp, LuCircle, LuActivity, LuWallet } from 'react-icons/lu'
 import { addThousandsSeparator } from '../../utils/helper'
 import PredictionChart from '../../components/Predictions/PredictionChart'
+import ExpenseHeatmapCalendar from '../../components/Charts/ExpenseHeatmapCalendar'
+import CashFlowSankey from '../../components/Charts/CashFlowSankey'
+import CumulativeSavingsGrowth from '../../components/Charts/CumulativeSavingsGrowth'
 
 const Analytics = () => {
   useUserAuth()
@@ -21,7 +24,7 @@ const Analytics = () => {
   const [savingsRate, setSavingsRate] = useState(null)
   const [yearComparison, setYearComparison] = useState(null)
 
-  const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52B788']
+  const COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1', '#14B8A6', '#EAB308']
 
   // Fetch Spending Trends
   const fetchSpendingTrends = async () => {
@@ -206,6 +209,26 @@ const Analytics = () => {
           <PredictionChart />
         </div>
 
+        {/* Advanced Analytics Section */}
+        <div className='mb-6'>
+          <h2 className='text-xl font-bold text-gray-900 mb-4'>📊 Advanced Analytics</h2>
+          
+          {/* Cumulative Savings Growth */}
+          <div className='mb-6'>
+            <CumulativeSavingsGrowth months={months} />
+          </div>
+
+          {/* Cash Flow Sankey */}
+          <div className='mb-6'>
+            <CashFlowSankey months={1} />
+          </div>
+
+          {/* Expense Heatmap Calendar */}
+          <div className='mb-6'>
+            <ExpenseHeatmapCalendar months={3} />
+          </div>
+        </div>
+
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
           {/* Spending Trends Chart */}
           <div className='card'>
@@ -215,13 +238,40 @@ const Analytics = () => {
             </div>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={formatSpendingTrendsData()}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="period" />
-                <YAxis />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis 
+                  dataKey="period" 
+                  tick={{ fontSize: 12, fill: '#6B7280' }}
+                  stroke="#D1D5DB"
+                />
+                <YAxis 
+                  tick={{ fontSize: 12, fill: '#6B7280' }}
+                  stroke="#D1D5DB"
+                  tickFormatter={(value) => `$${addThousandsSeparator(value)}`}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                  formatter={(value) => `$${addThousandsSeparator(value)}`}
+                />
                 <Legend />
-                <Line type="monotone" dataKey="expense" stroke="#FF6B6B" strokeWidth={2} />
-                <Line type="monotone" dataKey="income" stroke="#4ECDC4" strokeWidth={2} />
+                <Line 
+                  type="monotone" 
+                  dataKey="expense" 
+                  stroke="#EF4444" 
+                  strokeWidth={3}
+                  dot={{ fill: '#EF4444', r: 4 }}
+                  activeDot={{ r: 6 }}
+                  name="Expense"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="income" 
+                  stroke="#10B981" 
+                  strokeWidth={3}
+                  dot={{ fill: '#10B981', r: 4 }}
+                  activeDot={{ r: 6 }}
+                  name="Income"
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -234,15 +284,37 @@ const Analytics = () => {
             </div>
             {categoryBreakdown && categoryBreakdown.breakdown.length > 0 ? (
               <>
-                <ResponsiveContainer width="100%" height={250}>
+                <ResponsiveContainer width="100%" height={280}>
                   <PieChart>
                     <Pie
                       data={categoryBreakdown.breakdown}
                       cx="50%"
                       cy="50%"
-                      labelLine={false}
-                      label={({ category, percentage }) => `${category}: ${percentage}%`}
-                      outerRadius={80}
+                      labelLine={true}
+                      label={({ cx, cy, midAngle, innerRadius, outerRadius, percentage }) => {
+                        const RADIAN = Math.PI / 180
+                        const radius = outerRadius + 25
+                        const x = cx + radius * Math.cos(-midAngle * RADIAN)
+                        const y = cy + radius * Math.sin(-midAngle * RADIAN)
+                        
+                        // Only show label if percentage is > 3% to avoid clutter
+                        if (percentage < 3) return null
+                        
+                        return (
+                          <text 
+                            x={x} 
+                            y={y} 
+                            fill="#374151" 
+                            textAnchor={x > cx ? 'start' : 'end'} 
+                            dominantBaseline="central"
+                            fontSize="11px"
+                            fontWeight="600"
+                          >
+                            {`${percentage}%`}
+                          </text>
+                        )
+                      }}
+                      outerRadius={85}
                       fill="#8884d8"
                       dataKey="total"
                     >
@@ -250,7 +322,12 @@ const Analytics = () => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip 
+                      formatter={(value, name, props) => [
+                        `$${addThousandsSeparator(value)}`,
+                        props.payload.category
+                      ]}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className='mt-4 max-h-40 overflow-y-auto'>
@@ -284,14 +361,25 @@ const Analytics = () => {
             </div>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={formatIncomeVsExpenseData()}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis 
+                  dataKey="month" 
+                  tick={{ fontSize: 12, fill: '#6B7280' }}
+                  stroke="#D1D5DB"
+                />
+                <YAxis 
+                  tick={{ fontSize: 12, fill: '#6B7280' }}
+                  stroke="#D1D5DB"
+                  tickFormatter={(value) => `$${addThousandsSeparator(value)}`}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #E5E7EB', borderRadius: '8px' }}
+                  formatter={(value) => `$${addThousandsSeparator(value)}`}
+                />
                 <Legend />
-                <Bar dataKey="Income" fill="#4ECDC4" />
-                <Bar dataKey="Expense" fill="#FF6B6B" />
-                <Bar dataKey="Savings" fill="#52B788" />
+                <Bar dataKey="Income" fill="#10B981" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="Expense" fill="#EF4444" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="Savings" fill="#3B82F6" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
