@@ -1,15 +1,15 @@
-import React, { useRef , useState } from 'react'
-import {LuUser, LuUpload , LuTrash } from 'react-icons/lu'
-const ProfilePhotoSelector = ({image , setImage}) => {
+import React, { useRef, useState } from 'react'
+import { LuUser, LuUpload, LuTrash } from 'react-icons/lu'
+const ProfilePhotoSelector = ({ image, setImage }) => {
     const inputRef = useRef(null);
-    const [previewUrl , setPreviewUrl] = useState(null)
+    const [previewUrl, setPreviewUrl] = useState(null)
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-           setImage(file);
+            setImage(file);
 
-           const preview = URL.createObjectURL(file);
-           setPreviewUrl(preview);
+            const preview = URL.createObjectURL(file);
+            setPreviewUrl(preview);
         }
     }
 
@@ -20,43 +20,43 @@ const ProfilePhotoSelector = ({image , setImage}) => {
     const onChooseImage = () => {
         inputRef.current.click();
     }
-  return (
-    <div className='flex justify-center mb-6'>
-        <input 
-        type="file"
-        accept='image/*'
-        ref={inputRef}
-        onChange={handleImageChange}
-        className='hidden' />
+    return (
+        <div className='flex justify-center mb-6'>
+            <input
+                type="file"
+                accept='image/*'
+                ref={inputRef}
+                onChange={handleImageChange}
+                className='hidden' />
 
-        {!image ? (
-            <div className='w-20 h-20 flex items-center justify-center bg-purple-100 rounded-full relative'>
-                <LuUser className='text-4xl text-purple-600 ' />
+            {!image ? (
+                <div className='w-20 h-20 flex items-center justify-center bg-indigo-50 rounded-full relative shadow-sm border border-indigo-100'>
+                    <LuUser className='text-4xl text-primary' />
 
-                <button type='button' 
-                className='w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full absolute -bottom-1 -right-1 '
-                onClick={onChooseImage}>
+                    <button type='button'
+                        className='w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full absolute -bottom-1 -right-1 shadow-sm hover:scale-105 transition-transform'
+                        onClick={onChooseImage}>
 
-                    <LuUpload/>
-                </button>
-            </div>
+                        <LuUpload />
+                    </button>
+                </div>
 
-        ) : (
-            <div className='relative'>
-                <img src={previewUrl} 
-                alt="profile Photo"
-                className='w-20 h-20 object-cover rounded-full'
-                />
+            ) : (
+                <div className='relative'>
+                    <img src={previewUrl}
+                        alt="profile Photo"
+                        className='w-20 h-20 object-cover rounded-full'
+                    />
 
-                <button type='button'
-                className='w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-full absolute -bottom-1 -right-1'
-                onClick={handleRemoveImage}>
-                    <LuTrash/>
-                </button>
-            </div>
-        )}
-    </div>
-  )
+                    <button type='button'
+                        className='w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-full absolute -bottom-1 -right-1'
+                        onClick={handleRemoveImage}>
+                        <LuTrash />
+                    </button>
+                </div>
+            )}
+        </div>
+    )
 }
 
 export default ProfilePhotoSelector

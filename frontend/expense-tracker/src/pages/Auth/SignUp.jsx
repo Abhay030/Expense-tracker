@@ -27,15 +27,15 @@ const SignUp = () => {
 
     let profileImageUrl = null
 
-    if(!fullname){
+    if (!fullname) {
       setError('Please enter your full name')
       return;
     }
-    if(!validationEmail(email)) {
+    if (!validationEmail(email)) {
       setError('Please enter a valid email address')
       return;
     }
-    if(!password){
+    if (!password) {
       setError('Please enter a password')
       return;
     }
@@ -43,10 +43,10 @@ const SignUp = () => {
 
     // Sign up call Api
 
-    try{
+    try {
 
       // upload profile picture
-      if(profilePic){
+      if (profilePic) {
         const imgUploadRes = await uploadImage(profilePic);
         profileImageUrl = imgUploadRes.imageUrl || "";
       }
@@ -60,15 +60,15 @@ const SignUp = () => {
 
       const { token, user } = response.data;
 
-      if(token){
+      if (token) {
         localStorage.setItem('token', token)
         updateUser(user);
         navigate('/dashboard')
       }
-    } catch(error){
-      if(error.response && error.response.data.message){
+    } catch (error) {
+      if (error.response && error.response.data.message) {
         setError(error.response.data.message)
-      }else{
+      } else {
         setError('Something went wrong')
       }
     }
@@ -78,12 +78,11 @@ const SignUp = () => {
   return (
     <AuthLayout>
       <div className='lg:w-[100%] h-auto md:h-full mt-10 md:mt-0 flex flex-col justify-center'>
-        <h3 className='text-xl font-semibold text-black'>
+        <h3 className='text-2xl font-bold text-slate-800 tracking-tight'>
           Create an Account
         </h3>
-        <p className='text-xs text-slate-700 mt-[5px] mb-6'>
+        <p className='text-[14px] text-slate-500 mt-[5px] mb-8'>
           Join us and start tracking your expenses
-
         </p>
 
         <form onSubmit={handleSignUp}>
@@ -113,13 +112,13 @@ const SignUp = () => {
             </div>
           </div>
 
-          {error && <p className='text-red-500 text-xs'>{error}</p>}
+          {error && <p className='text-rose-500 text-xs font-medium'>{error}</p>}
 
-          <button type='submit' className='bg-primary text-white w-full py-2 rounded-md mt-4 hover:bg-primary/80 transition-all duration-200'>
+          <button type='submit' className='btn-primary mt-5 py-2.5'>
             Sign Up
           </button>
 
-          <p className='text-[13px] text-slate-800 mt-3'>
+          <p className='text-[14px] text-slate-600 mt-5 text-center'>
             Already have an account? {" "}
             <Link className='font-medium text-primary underline' to="/Login">Login</Link>
 

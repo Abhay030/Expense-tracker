@@ -1,6 +1,7 @@
 const user = require('../models/User');
 const Income = require('../models/Income');
 const XLSX = require('xlsx');
+const cache = require('../middleware/cache');
 
 exports.addIncome = async (req, res) => {
     const userId = req.user._id;
@@ -23,6 +24,9 @@ exports.addIncome = async (req, res) => {
 
         await newIncome.save();
 
+        // Invalidate cached dashboard/analytics data for this user
+        cache.invalidateUser(userId);
+
         res.status(201).json({ newIncome })
     }
     catch (error) {
@@ -33,8 +37,22 @@ exports.addIncome = async (req, res) => {
 exports.getAllIncome = async (req, res) => {
     const userId = req.user._id;
     try {
-        const incomes = await Income.find({ userId }).sort({ date: -1 });
-        res.status(200).json({ incomes });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 0; // 0 = no limit (backward compatible)
+        const skip = limit > 0 ? (page - 1) * limit : 0;
+
+        let query = Income.find({ userId }).sort({ date: -1 }).lean();
+        if (limit > 0) {
+            query = query.skip(skip).limit(limit);
+        }
+        const incomes = await query;
+
+        const total = limit > 0 ? await Income.countDocuments({ userId }) : incomes.length;
+
+        res.status(200).json({
+            incomes,
+            ...(limit > 0 && { pagination: { page, limit, total, pages: Math.ceil(total / limit) } })
+        });
     }
     catch (error) {
         res.status(500).json({ message: 'Error fetching incomes', error: error.message });
@@ -55,6 +73,7 @@ exports.deleteIncome = async (req, res) => {
         }
 
         await Income.findByIdAndDelete(req.params.id);
+        cache.invalidateUser(req.user._id);
         res.status(200).json({ message: 'Income deleted successfully' });
     }
     catch (error) {

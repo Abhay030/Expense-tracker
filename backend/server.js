@@ -5,6 +5,7 @@ const path = require("path");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const mongoSanitize = require("express-mongo-sanitize");
+const compression = require("compression");
 const connectDB = require("./config/db");
 
 // Route imports
@@ -26,6 +27,9 @@ const app = express();
 
 // Helmet — sets secure HTTP headers (XSS, clickjacking, MIME sniffing, etc.)
 app.use(helmet());
+
+// Gzip compression — 60-80% smaller responses
+app.use(compression());
 
 // CORS — only allow requests from your frontend
 const allowedOrigins = [
@@ -49,24 +53,17 @@ app.use(cors({
 }));
 
 
-// Rate limiting — prevent brute force & DDoS
-const generalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100,                   // 100 requests per window per IP
-    message: { message: "Too many requests, please try again later." },
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 20,                    // 20 auth attempts per window per IP (stricter)
-    message: { message: "Too many login attempts, please try again later." },
-    standardHeaders: true,
-    legacyHeaders: false,
-});
-
-app.use(generalLimiter);
+// Rate limiting — only in production (dev HMR burns through limits)
+if (process.env.NODE_ENV === 'production') {
+    const generalLimiter = rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 200,
+        message: { message: "Too many requests, please try again later." },
+        standardHeaders: true,
+        legacyHeaders: false,
+    });
+    app.use(generalLimiter);
+}
 
 // Body parsers
 app.use(express.json({ limit: '10mb' }));
@@ -92,7 +89,7 @@ connectDB();
 // ---------------------
 // ROUTES
 // ---------------------
-app.use("/api/v1/auth", authLimiter, authRoutes);
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/income", incomeRoutes);
 app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);

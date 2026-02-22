@@ -10,45 +10,64 @@ import AddExpenseForm from '../../components/Expense/AddExpenseForm';
 import ExpenseList from '../../components/Expense/ExpenseList';
 import DeleteAlert from '../../components/DeleteAlert';
 
+const PAGE_SIZE = 10;
+
 const Expense = () => {
   useUserAuth();
   const [expenseData, setExpenseData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [openDeleteAlert, setOpenDeleteAlert] = useState({
     show: false,
     data: null,
   });
   const [OpenAddExpenseModal, setOpenAddExpenseModal] = useState(false);
 
-  // get All Expense Details
-  const fetchExpenseDetails = async () => {
+  // Fetch expenses with pagination
+  const fetchExpenseDetails = async (pageNum = 1, append = false) => {
     if (loading) return;
-
     setLoading(true);
 
     try {
-      const response = await axiosInstance.get(`${API_PATHS.EXPENSE.GET_ALL_EXPENSE}`)
+      const response = await axiosInstance.get(
+        `${API_PATHS.EXPENSE.GET_ALL_EXPENSE}?page=${pageNum}&limit=${PAGE_SIZE}`
+      );
 
       if (response.data) {
-        setExpenseData(response.data.expenses || []);
+        const newExpenses = response.data.expenses || [];
+        setExpenseData(prev => append ? [...prev, ...newExpenses] : newExpenses);
+
+        // Check if there are more pages
+        const pagination = response.data.pagination;
+        if (pagination) {
+          setHasMore(pageNum < pagination.pages);
+        } else {
+          setHasMore(false);
+        }
       }
     } catch (error) {
-      console.log("Something went wrong. Please try Again Later", error);
+      console.error("Something went wrong. Please try Again Later", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Load more handler
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchExpenseDetails(nextPage, true);
   };
 
   // Handle Add Expense
   const handleAddExpense = async (expense) => {
     const { category, amount, date, icon } = expense;
 
-    // Validtion check
     if (!category.trim()) {
       toast.error("Category is required");
       return;
     }
-
     if (!amount || isNaN(amount) || Number(amount) <= 0) {
       toast.error("Amount should be a valid number greater than 0");
       return;
@@ -60,15 +79,14 @@ const Expense = () => {
 
     try {
       await axiosInstance.post(`${API_PATHS.EXPENSE.ADD_EXPENSE}`, {
-        category,
-        amount,
-        date,
-        icon
+        category, amount, date, icon
       });
 
       setOpenAddExpenseModal(false);
       toast.success("Expense added successfully");
-      fetchExpenseDetails(); // Refresh expense details
+      // Reset to page 1 and refresh
+      setPage(1);
+      fetchExpenseDetails(1, false);
     }
     catch (error) {
       console.error("Error adding expense:", error.response?.data?.message || error.message);
@@ -80,9 +98,10 @@ const Expense = () => {
     try {
       await axiosInstance.delete(`${API_PATHS.EXPENSE.DELETE_EXPENSE(id)}`);
 
-      setOpenDeleteAlert({ show: false, data: null }); // Close the delete alert
+      setOpenDeleteAlert({ show: false, data: null });
       toast.success("Expense deleted successfully");
-      fetchExpenseDetails(); // Refresh expense details
+      // Remove from local state instantly (no refetch needed)
+      setExpenseData(prev => prev.filter(e => e._id !== id));
     } catch (error) {
       console.error("Error deleting expense:", error.response?.data?.message || error.message);
       toast.error("Failed to delete expense");
@@ -91,12 +110,14 @@ const Expense = () => {
 
   // Handle download expense details
   const handleDownloadExpenseDetails = async () => {
+    if (!expenseData || expenseData.length === 0) {
+      toast.error("No expense data to download. Please add some expenses first!", { id: "no-expense-download" });
+      return;
+    }
     try {
       const response = await axiosInstance.get(
         API_PATHS.EXPENSE.DOWNLOAD_EXPENSE,
-        {
-          responseType: 'blob',
-        }
+        { responseType: 'blob' }
       );
 
       const url = window.URL.createObjectURL(new Blob([response.data]))
@@ -109,14 +130,12 @@ const Expense = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error downloading expense details:", error);
-      toast.error("failed to download expense details , Please try again later");
+      toast.error("Failed to download expense details, please try again later");
     }
   }
 
-
   useEffect(() => {
-    fetchExpenseDetails();
-
+    fetchExpenseDetails(1, false);
     return () => { };
   }, []);
 
@@ -138,6 +157,19 @@ const Expense = () => {
             }}
             onDownload={handleDownloadExpenseDetails}
           />
+
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="flex justify-center">
+              <button
+                onClick={handleLoadMore}
+                disabled={loading}
+                className="px-6 py-2.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading ? "Loading..." : "Load More"}
+              </button>
+            </div>
+          )}
         </div>
 
         <Modal
@@ -158,8 +190,6 @@ const Expense = () => {
             onDelete={() => DeleteExpense(openDeleteAlert.data)}
           />
         </Modal>
-
-
       </div>
     </DashboardLayout>
   )

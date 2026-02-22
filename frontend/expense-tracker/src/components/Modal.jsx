@@ -4,17 +4,17 @@ const Modal = ({ children, isOpen, onClose, title }) => {
   if (!isOpen) return null; // Don't render if not open
 
   return (
-    <div className='fixed inset-0 z-50 flex justify-center items-center bg-black/20 backdrop-blur-sm overflow-y-auto overflow-x-hidden'>
-      <div className="relative p-4 w-full max-w-2xl max-h-full">
+    <div className='fixed inset-0 z-50 flex justify-center items-center bg-slate-900/20 backdrop-blur-sm overflow-y-auto overflow-x-hidden'>
+      <div className="relative p-4 w-full max-w-lg max-h-full">
         {/* Modal content */}
-        <div className="relative bg-white rounded-lg shadow-sm">
-          
+        <div className="relative bg-white rounded-2xl shadow-xl border border-slate-200/60">
+
           {/* Modal Header */}
-          <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200 dark:border-gray-600">
-            <h3 className="text-lg font-medium text-gray-900 ">{title}</h3>
+          <div className="flex items-center justify-between p-5 border-b border-slate-200/60">
+            <h3 className="text-[17px] font-semibold text-slate-800 tracking-tight">{title}</h3>
             <button
               type="button"
-              className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white"
+              className="text-slate-400 bg-transparent hover:bg-slate-100 hover:text-slate-800 rounded-lg text-sm w-8 h-8 flex items-center justify-center transition-colors"
               onClick={onClose}
             >
               <svg
@@ -36,7 +36,7 @@ const Modal = ({ children, isOpen, onClose, title }) => {
           </div>
 
           {/* Modal Body */}
-          <div className="p-4 md:p-5 space-y-4">
+          <div className="p-5 space-y-4">
             {children}
           </div>
         </div>

@@ -1,4 +1,4 @@
-const { Types, isValidObjectId } = require('mongoose'); // make sure you import these if needed
+const { Types } = require('mongoose'); // make sure you import these if needed
 const Income = require('../models/Income'); // adjust paths as needed
 const Expense = require('../models/Expense'); // adjust paths as needed
 const { generateExpenseSummary } = require('../services/aiSummaryService');
@@ -19,14 +19,12 @@ exports.getDashBoardData = async (req, res) => {
             { $group: { _id: null, total: { $sum: "$amount" } } },
         ]);
 
-        console.log("totalIncome", { totalIncome, userId: isValidObjectId(userId) });
-        console.log("totalExpense", { totalExpense, userId: isValidObjectId(userId) });
 
         // Get income transactions in the last 60 days
         const last60DaysIncomeTransaction = await Income.find({
             userId,
             date: { $gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) },
-        }).sort({ date: -1 });
+        }).sort({ date: -1 }).lean();
 
         // Get total income for the last 60 days
         const incomeLast60Days = last60DaysIncomeTransaction.reduce(
@@ -38,7 +36,7 @@ exports.getDashBoardData = async (req, res) => {
         const last30DaysExpenseTransaction = await Expense.find({
             userId,
             date: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
-        }).sort({ date: -1 });
+        }).sort({ date: -1 }).lean();
 
         const expenseLast30Days = last30DaysExpenseTransaction.reduce(
             (sum, transaction) => sum + transaction.amount,
@@ -83,17 +81,17 @@ exports.getDashBoardData = async (req, res) => {
 exports.getAIExpenseSummary = async (req, res) => {
     try {
         const userId = req.user.id;
-        
+
         const summaryResult = await generateExpenseSummary(userId);
-        
+
         res.json(summaryResult);
-        
+
     } catch (error) {
         console.error('Error getting AI summary:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
-            message: "Error generating expense summary", 
-            error: error.message 
+            message: "Error generating expense summary",
+            error: error.message
         });
     }
 };

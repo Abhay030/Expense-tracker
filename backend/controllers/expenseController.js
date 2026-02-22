@@ -1,7 +1,7 @@
 const user = require('../models/User');
 const Expense = require('../models/Expense');
 const XLSX = require('xlsx');
-const e = require('express');
+const cache = require('../middleware/cache');
 const { categorizeExpenseWithAI, getAvailableCategories } = require('../services/aiCategorizationService');
 const { processReceipt, validateAndImprove } = require('../services/ocrService');
 const multer = require('multer');
@@ -31,6 +31,9 @@ exports.addExpense = async (req, res) => {
 
         await newExpense.save();
 
+        // Invalidate cached dashboard/analytics data
+        cache.invalidateUser(userId);
+
         res.status(201).json({ newExpense })
     }
     catch (error) {
@@ -41,8 +44,22 @@ exports.addExpense = async (req, res) => {
 exports.getAllExpense = async (req, res) => {
     const userId = req.user._id;
     try {
-        const expenses = await Expense.find({ userId }).sort({ date: -1 });
-        res.status(200).json({ expenses });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 0; // 0 = no limit (backward compatible)
+        const skip = limit > 0 ? (page - 1) * limit : 0;
+
+        let query = Expense.find({ userId }).sort({ date: -1 }).lean();
+        if (limit > 0) {
+            query = query.skip(skip).limit(limit);
+        }
+        const expenses = await query;
+
+        const total = limit > 0 ? await Expense.countDocuments({ userId }) : expenses.length;
+
+        res.status(200).json({
+            expenses,
+            ...(limit > 0 && { pagination: { page, limit, total, pages: Math.ceil(total / limit) } })
+        });
     }
     catch (error) {
         res.status(500).json({ message: 'Error fetching expense', error: error.message });
@@ -63,6 +80,7 @@ exports.deleteExpense = async (req, res) => {
         }
 
         await Expense.findByIdAndDelete(req.params.id);
+        cache.invalidateUser(req.user._id);
         res.status(200).json({ message: 'Expense deleted successfully' });
     }
     catch (error) {

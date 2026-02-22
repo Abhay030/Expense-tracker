@@ -14,16 +14,16 @@ async function generateExpenseSummary(userId) {
     try {
         // Get current month data
         const currentMonthData = await getMonthlyData(userId, 0);
-        
+
         // Get previous month data for comparison
         const previousMonthData = await getMonthlyData(userId, 1);
-        
+
         // Calculate insights
         const insights = calculateInsights(currentMonthData, previousMonthData);
-        
+
         // Generate AI summary using OpenAI
         const aiSummary = await generateAISummary(insights);
-        
+
         return {
             success: true,
             summary: aiSummary,
@@ -33,10 +33,10 @@ async function generateExpenseSummary(userId) {
                 insights: insights
             }
         };
-        
+
     } catch (error) {
         console.error('Error generating expense summary:', error);
-        
+
         // Fallback to basic summary
         return generateBasicSummary(userId);
     }
@@ -50,28 +50,28 @@ async function getMonthlyData(userId, monthsAgo = 0) {
     startDate.setMonth(startDate.getMonth() - monthsAgo);
     startDate.setDate(1);
     startDate.setHours(0, 0, 0, 0);
-    
+
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + 1);
     endDate.setDate(0);
     endDate.setHours(23, 59, 59, 999);
-    
+
     // Get expenses
     const expenses = await Expense.find({
         userId: userId,
         date: { $gte: startDate, $lte: endDate }
     });
-    
+
     // Get income
     const incomes = await Income.find({
         userId: userId,
         date: { $gte: startDate, $lte: endDate }
     });
-    
+
     // Calculate totals
     const totalExpense = expenses.reduce((sum, exp) => sum + exp.amount, 0);
     const totalIncome = incomes.reduce((sum, inc) => sum + inc.amount, 0);
-    
+
     // Group by category
     const categoryBreakdown = {};
     expenses.forEach(exp => {
@@ -81,7 +81,7 @@ async function getMonthlyData(userId, monthsAgo = 0) {
         categoryBreakdown[exp.category].total += exp.amount;
         categoryBreakdown[exp.category].count += 1;
     });
-    
+
     // Sort categories by amount
     const topCategories = Object.entries(categoryBreakdown)
         .sort((a, b) => b[1].total - a[1].total)
@@ -92,7 +92,7 @@ async function getMonthlyData(userId, monthsAgo = 0) {
             count: data.count,
             percentage: totalExpense > 0 ? ((data.total / totalExpense) * 100).toFixed(1) : 0
         }));
-    
+
     return {
         month: startDate.toLocaleString('default', { month: 'long', year: 'numeric' }),
         totalExpense,
@@ -118,37 +118,46 @@ function calculateInsights(currentMonth, previousMonth) {
         categoryChanges: [],
         trend: 'stable'
     };
-    
+
     // Calculate expense change
     insights.expenseChange = currentMonth.totalExpense - previousMonth.totalExpense;
-    insights.expenseChangePercent = previousMonth.totalExpense > 0 
-        ? ((insights.expenseChange / previousMonth.totalExpense) * 100).toFixed(1)
-        : 0;
-    
+    if (previousMonth.totalExpense > 0) {
+        insights.expenseChangePercent = ((insights.expenseChange / previousMonth.totalExpense) * 100).toFixed(1);
+    } else if (currentMonth.totalExpense > 0) {
+        // If there were no expenses last month but there are this month, that's a 100% increase conceptually
+        insights.expenseChangePercent = 100;
+    } else {
+        insights.expenseChangePercent = 0;
+    }
+
     // Calculate income change
     insights.incomeChange = currentMonth.totalIncome - previousMonth.totalIncome;
-    insights.incomeChangePercent = previousMonth.totalIncome > 0
-        ? ((insights.incomeChange / previousMonth.totalIncome) * 100).toFixed(1)
-        : 0;
-    
+    if (previousMonth.totalIncome > 0) {
+        insights.incomeChangePercent = ((insights.incomeChange / previousMonth.totalIncome) * 100).toFixed(1);
+    } else if (currentMonth.totalIncome > 0) {
+        insights.incomeChangePercent = 100;
+    } else {
+        insights.incomeChangePercent = 0;
+    }
+
     // Calculate savings change
     insights.savingsChange = currentMonth.savings - previousMonth.savings;
-    
+
     // Top spending category
     if (currentMonth.categoryBreakdown.length > 0) {
         insights.topSpendingCategory = currentMonth.categoryBreakdown[0];
     }
-    
+
     // Calculate category changes
     const prevCategories = new Map(
         previousMonth.categoryBreakdown.map(cat => [cat.category, cat.amount])
     );
-    
+
     currentMonth.categoryBreakdown.forEach(currentCat => {
         const prevAmount = prevCategories.get(currentCat.category) || 0;
         const change = currentCat.amount - prevAmount;
         const changePercent = prevAmount > 0 ? ((change / prevAmount) * 100).toFixed(1) : 0;
-        
+
         if (Math.abs(changePercent) > 10) { // Only significant changes
             insights.categoryChanges.push({
                 category: currentCat.category,
@@ -159,12 +168,12 @@ function calculateInsights(currentMonth, previousMonth) {
             });
         }
     });
-    
+
     // Sort by absolute change percent
-    insights.categoryChanges.sort((a, b) => 
+    insights.categoryChanges.sort((a, b) =>
         Math.abs(b.changePercent) - Math.abs(a.changePercent)
     );
-    
+
     // Determine overall trend
     if (insights.savingsChange > 0 && Math.abs(insights.savingsChange) > 50) {
         insights.trend = 'improving';
@@ -173,7 +182,7 @@ function calculateInsights(currentMonth, previousMonth) {
     } else {
         insights.trend = 'stable';
     }
-    
+
     return insights;
 }
 
@@ -182,7 +191,7 @@ function calculateInsights(currentMonth, previousMonth) {
  */
 async function generateAISummary(insights) {
     const prompt = createSummaryPrompt(insights);
-    
+
     try {
         const response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo',
@@ -199,15 +208,15 @@ async function generateAISummary(insights) {
             temperature: 0.7,
             max_tokens: 200
         });
-        
+
         const summary = response.choices[0].message.content.trim();
-        
+
         return {
             text: summary,
             source: 'openai',
             timestamp: new Date()
         };
-        
+
     } catch (error) {
         console.error('OpenAI API error:', error);
         throw error;
@@ -218,46 +227,46 @@ async function generateAISummary(insights) {
  * Create prompt for OpenAI
  */
 function createSummaryPrompt(insights) {
-    const { 
-        expenseChange, 
-        expenseChangePercent, 
+    const {
+        expenseChange,
+        expenseChangePercent,
         savingsChange,
         topSpendingCategory,
         categoryChanges,
-        trend 
+        trend
     } = insights;
-    
+
     let prompt = `Generate a personalized financial summary based on this data:\n\n`;
-    
+
     // Overall trend
     prompt += `Overall Trend: ${trend}\n`;
-    
+
     // Expense change
     if (Math.abs(expenseChangePercent) > 5) {
         const direction = expenseChange > 0 ? 'increased' : 'decreased';
         prompt += `- Expenses ${direction} by ${Math.abs(expenseChangePercent)}% compared to last month\n`;
     }
-    
+
     // Top spending category
     if (topSpendingCategory) {
         prompt += `- Top spending category: ${topSpendingCategory.category} (${topSpendingCategory.percentage}% of total)\n`;
     }
-    
+
     // Significant category changes
     if (categoryChanges.length > 0) {
         const topChange = categoryChanges[0];
         const direction = topChange.change > 0 ? 'increased' : 'decreased';
         prompt += `- ${topChange.category} ${direction} by ${Math.abs(topChange.changePercent)}%\n`;
     }
-    
+
     // Savings trend
     if (savingsChange !== 0) {
         const direction = savingsChange > 0 ? 'increased' : 'decreased';
         prompt += `- Savings ${direction} by $${Math.abs(savingsChange).toFixed(2)}\n`;
     }
-    
+
     prompt += `\nProvide a friendly, actionable summary with 1-2 specific recommendations.`;
-    
+
     return prompt;
 }
 
@@ -269,29 +278,29 @@ async function generateBasicSummary(userId) {
         const currentMonthData = await getMonthlyData(userId, 0);
         const previousMonthData = await getMonthlyData(userId, 1);
         const insights = calculateInsights(currentMonthData, previousMonthData);
-        
+
         // Generate basic text summary
         let summaryText = '';
-        
+
         if (Math.abs(insights.expenseChangePercent) > 5) {
             const direction = insights.expenseChange > 0 ? 'increased' : 'decreased';
             summaryText += `Your expenses ${direction} by ${Math.abs(insights.expenseChangePercent)}% this month. `;
         }
-        
+
         if (insights.topSpendingCategory) {
             summaryText += `Most spending was on ${insights.topSpendingCategory.category} (${insights.topSpendingCategory.percentage}%). `;
         }
-        
+
         if (insights.categoryChanges.length > 0) {
             const topChange = insights.categoryChanges[0];
             const direction = topChange.change > 0 ? 'increased' : 'decreased';
             summaryText += `${topChange.category} ${direction} significantly by ${Math.abs(topChange.changePercent)}%. `;
         }
-        
+
         if (!summaryText) {
             summaryText = 'Your spending patterns are consistent with last month. Keep up the good work!';
         }
-        
+
         return {
             success: true,
             summary: {
@@ -305,7 +314,7 @@ async function generateBasicSummary(userId) {
                 insights: insights
             }
         };
-        
+
     } catch (error) {
         console.error('Error generating basic summary:', error);
         return {
