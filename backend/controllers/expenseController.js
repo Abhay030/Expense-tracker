@@ -13,12 +13,12 @@ const fs = require('fs').promises;
 exports.addExpense = async (req, res) => {
     const userId = req.user._id;
 
-    try{
-        const{icon , category, amount, date} = req.body;
+    try {
+        const { icon, category, amount, date } = req.body;
 
         // validation check for the missing fields
-        if(!category || !amount || !date ){
-            return res.status(400).json({message : 'Please fill all the fields'});
+        if (!category || !amount || !date) {
+            return res.status(400).json({ message: 'Please fill all the fields' });
         }
         // create new income
         const newExpense = await Expense.create({
@@ -31,40 +31,50 @@ exports.addExpense = async (req, res) => {
 
         await newExpense.save();
 
-        res.status(201).json({newExpense})
+        res.status(201).json({ newExpense })
     }
-    catch(error){
-        res.status(500).json({message: 'Error creating Expense' , error: error.message});
+    catch (error) {
+        res.status(500).json({ message: 'Error creating Expense', error: error.message });
     }
 }
 
 exports.getAllExpense = async (req, res) => {
     const userId = req.user._id;
-    try{
-        const expenses = await Expense.find({userId}).sort({date: -1});
-        res.status(200).json({expenses});
+    try {
+        const expenses = await Expense.find({ userId }).sort({ date: -1 });
+        res.status(200).json({ expenses });
     }
-    catch(error){
-        res.status(500).json({message: 'Error fetching expense' , error: error.message});
+    catch (error) {
+        res.status(500).json({ message: 'Error fetching expense', error: error.message });
     }
 }
 
 exports.deleteExpense = async (req, res) => {
+    try {
+        const expense = await Expense.findById(req.params.id);
 
-    try{
+        if (!expense) {
+            return res.status(404).json({ message: 'Expense record not found' });
+        }
+
+        // Authorization: ensure the record belongs to the logged-in user
+        if (expense.userId.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Not authorized to delete this record' });
+        }
+
         await Expense.findByIdAndDelete(req.params.id);
-        res.status(200).json({message: 'Expense deleted successfully'});
+        res.status(200).json({ message: 'Expense deleted successfully' });
     }
-    catch(error){
-        res.status(500).json({message: 'Error deleting Expense' , error: error.message});
+    catch (error) {
+        res.status(500).json({ message: 'Error deleting Expense', error: error.message });
     }
 }
 
 exports.downloadExpenseExcel = async (req, res) => {
     const userId = req.user._id;
 
-    try{
-        const expenses = await Expense.find({userId}).sort({date: -1});
+    try {
+        const expenses = await Expense.find({ userId }).sort({ date: -1 });
 
         // prepare the data for excel
         const data = expenses.map(expense => ({
@@ -76,19 +86,19 @@ exports.downloadExpenseExcel = async (req, res) => {
         const workbook = XLSX.utils.book_new();
         const worksheet = XLSX.utils.json_to_sheet(data);
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Expenses');
-        
+
         // Write to buffer instead of file
         const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-        
+
         // Set headers for file download
         res.setHeader('Content-Disposition', 'attachment; filename=expense_details.xlsx');
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        
+
         // Send the buffer
         res.send(buffer);
     }
-    catch(error){
-        res.status(500).json({message: 'Error downloading expense excel' , error: error.message});
+    catch (error) {
+        res.status(500).json({ message: 'Error downloading expense excel', error: error.message });
     }
 }
 
@@ -111,9 +121,9 @@ exports.suggestCategory = async (req, res) => {
 
     } catch (error) {
         console.error('Error suggesting category:', error);
-        res.status(500).json({ 
-            message: 'Error suggesting category', 
-            error: error.message 
+        res.status(500).json({
+            message: 'Error suggesting category',
+            error: error.message
         });
     }
 }
@@ -150,7 +160,7 @@ const fileFilter = (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|bmp|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
-    
+
     if (mimetype && extname) {
         return cb(null, true);
     } else {
@@ -175,44 +185,44 @@ exports.processReceiptOCR = async (req, res) => {
                 message: 'No image file uploaded'
             });
         }
-        
+
         const imagePath = req.file.path;
-        
+
         // Process receipt with OCR
         const result = await processReceipt(imagePath);
-        
+
         if (!result.success) {
             // Clean up uploaded file
             await fs.unlink(imagePath).catch(err => console.error('File cleanup error:', err));
-            
+
             return res.status(400).json({
                 success: false,
                 message: 'Failed to process receipt',
                 error: result.error
             });
         }
-        
+
         // Validate and improve extracted data
         const improvedData = validateAndImprove(result.data);
-        
+
         // Clean up uploaded file after processing
         await fs.unlink(imagePath).catch(err => console.error('File cleanup error:', err));
-        
+
         res.json({
             success: true,
             data: improvedData,
             rawText: result.rawText,
             message: 'Receipt processed successfully'
         });
-        
+
     } catch (error) {
         console.error('Receipt upload error:', error);
-        
+
         // Clean up file if it exists
         if (req.file) {
             await fs.unlink(req.file.path).catch(err => console.error('File cleanup error:', err));
         }
-        
+
         res.status(500).json({
             success: false,
             message: 'Error processing receipt',

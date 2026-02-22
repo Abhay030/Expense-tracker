@@ -3,13 +3,14 @@ import { BASE_URL } from './apiPaths';
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
+    timeout: 15000, // 15 second timeout for all requests
     headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
     },
 });
 
-// request Intercepter
+// Request interceptor — attach JWT to every request
 axiosInstance.interceptors.request.use(
     (config) => {
         const accessToken = localStorage.getItem('token');
@@ -23,25 +24,29 @@ axiosInstance.interceptors.request.use(
     }
 );
 
-// response Intercepter
+// Response interceptor — handle auth errors and common failures
 axiosInstance.interceptors.response.use(
     (response) => {
         return response;
     },
     (error) => {
         if (error.response) {
-            if(error.response.status === 401) {
-                // Handle unauthorized access (e.g., redirect to login page)
+            if (error.response.status === 401) {
+                // Clear stale token and redirect to login
+                localStorage.removeItem('token');
                 window.location.href = '/login';
-            }else if(error.response.status === 500){
+            } else if (error.response.status === 429) {
+                console.error("Rate limit exceeded. Please slow down.");
+            } else if (error.response.status === 500) {
                 console.error("Server error. Please try again later.");
             }
-        }
-        else if(error.code === 'ECCONNABORTED'){
-            console.error("Request timeout. Please check your network connection.");
+        } else if (error.code === 'ECONNABORTED') {
+            console.error("Request timed out. Please check your connection.");
+        } else if (!error.response) {
+            console.error("Network error. Please check your internet connection.");
         }
         return Promise.reject(error);
     }
-);        
+);
 
 export default axiosInstance;

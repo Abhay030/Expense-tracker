@@ -7,16 +7,12 @@ const {
     downloadIncomeExcel,
 } = require('../controllers/incomeController');
 const { protect } = require('../middleware/authMiddleware');
+const { validate } = require('../middleware/validate');
 const router = express.Router();
 
-
-// Route to add income
-router.post('/add', protect, addIncome);
-// Route to get all income records
+router.post('/add', protect, validate('addIncome'), addIncome);
 router.get('/get', protect, getAllIncome);
-// Route to delete an income record 
 router.delete('/:id', protect, deleteIncome);
-// Route to download income records as an Excel file
 router.get('/downloadexcel', protect, downloadIncomeExcel);
 
 module.exports = router;
