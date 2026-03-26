@@ -16,13 +16,13 @@ const PredictionChart = ({ compact = false }) => {
 
   const fetchPrediction = async () => {
     if (loading) return
-    
+
     setLoading(true)
     setError(null)
 
     try {
       const response = await axiosInstance.get(API_PATHS.ANALYTICS.PREDICTION)
-      
+
       if (response.data.success) {
         setPrediction(response.data)
       } else {
@@ -38,28 +38,31 @@ const PredictionChart = ({ compact = false }) => {
 
   const prepareChartData = () => {
     if (!prediction) return []
-    
+
     const { historical, forecast_months, prediction: pred } = prediction
-    
+
+    // Guard: not enough data
+    if (!historical?.months || !forecast_months || !pred?.next_3_months) return []
+
     // Historical data points
     const historicalData = historical.months.map((month, index) => ({
       month: month.substring(5), // Get MM from YYYY-MM
       actual: historical.values[index],
       predicted: null
     }))
-    
+
     // Forecast data points
     const forecastData = forecast_months.map((month, index) => ({
       month: month.substring(5),
       actual: null,
       predicted: pred.next_3_months[index]
     }))
-    
+
     return [...historicalData, ...forecastData]
   }
 
   const getInsightIcon = (type) => {
-    switch(type) {
+    switch (type) {
       case 'warning':
         return <LuCircle className='text-orange-500' />
       case 'positive':
@@ -111,8 +114,11 @@ const PredictionChart = ({ compact = false }) => {
 
   if (!prediction) return null
 
+  // Guard against malformed API response before destructuring
+  const { prediction: pred, statistics, trend, insights, historical } = prediction
+  if (!pred || !statistics || !trend || !historical?.months) return null
+
   const chartData = prepareChartData()
-  const { prediction: pred, statistics, trend, insights } = prediction
 
   return (
     <div className='card border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-white'>
@@ -167,7 +173,7 @@ const PredictionChart = ({ compact = false }) => {
             <p className='text-sm opacity-90'>Confidence</p>
             <p className='text-2xl font-bold'>{(pred.confidence * 100).toFixed(0)}%</p>
             <div className='w-16 h-2 bg-indigo-400 rounded-full mt-2 overflow-hidden'>
-              <div 
+              <div
                 className='h-full bg-white rounded-full'
                 style={{ width: `${pred.confidence * 100}%` }}
               ></div>
@@ -181,34 +187,34 @@ const PredictionChart = ({ compact = false }) => {
         <ResponsiveContainer width="100%" height={compact ? 180 : 250}>
           <ComposedChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-            <XAxis 
-              dataKey="month" 
+            <XAxis
+              dataKey="month"
               tick={{ fontSize: 12 }}
               stroke="#666"
             />
-            <YAxis 
+            <YAxis
               tick={{ fontSize: 12 }}
               stroke="#666"
               tickFormatter={(value) => `$${value.toLocaleString()}`}
             />
-            <Tooltip 
+            <Tooltip
               formatter={(value) => value ? `$${addThousandsSeparator(value.toFixed(0))}` : 'N/A'}
               contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '8px' }}
             />
             <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="actual" 
-              stroke="#4F46E5" 
+            <Line
+              type="monotone"
+              dataKey="actual"
+              stroke="#4F46E5"
               strokeWidth={3}
               name="Historical Spending"
               dot={{ fill: '#4F46E5', r: 4 }}
               connectNulls={false}
             />
-            <Line 
-              type="monotone" 
-              dataKey="predicted" 
-              stroke="#F59E0B" 
+            <Line
+              type="monotone"
+              dataKey="predicted"
+              stroke="#F59E0B"
               strokeWidth={3}
               strokeDasharray="5 5"
               name="Predicted Spending"
@@ -228,7 +234,7 @@ const PredictionChart = ({ compact = false }) => {
               ${addThousandsSeparator(statistics.average.toFixed(0))}
             </p>
           </div>
-          
+
           <div className='p-3 bg-white rounded-lg border border-gray-200'>
             <p className='text-xs text-gray-600 mb-1'>Trend</p>
             <p className='text-sm font-bold text-gray-900 capitalize flex items-center gap-2'>
@@ -237,14 +243,14 @@ const PredictionChart = ({ compact = false }) => {
               {trend.trend}
             </p>
           </div>
-          
+
           <div className='p-3 bg-white rounded-lg border border-gray-200'>
             <p className='text-xs text-gray-600 mb-1'>Min/Max</p>
             <p className='text-xs font-bold text-gray-900'>
               ${statistics.min.toFixed(0)} / ${statistics.max.toFixed(0)}
             </p>
           </div>
-          
+
           <div className='p-3 bg-white rounded-lg border border-gray-200'>
             <p className='text-xs text-gray-600 mb-1'>Volatility</p>
             <p className='text-sm font-bold text-gray-900 capitalize'>
@@ -259,13 +265,12 @@ const PredictionChart = ({ compact = false }) => {
         <div className='space-y-2'>
           <p className='text-sm font-semibold text-gray-700 mb-2'>💡 Insights</p>
           {insights.map((insight, index) => (
-            <div 
+            <div
               key={index}
-              className={`flex items-start gap-3 p-3 rounded-lg text-sm ${
-                insight.type === 'warning' ? 'bg-orange-50 border border-orange-200' :
-                insight.type === 'positive' ? 'bg-green-50 border border-green-200' :
-                'bg-blue-50 border border-blue-200'
-              }`}
+              className={`flex items-start gap-3 p-3 rounded-lg text-sm ${insight.type === 'warning' ? 'bg-orange-50 border border-orange-200' :
+                  insight.type === 'positive' ? 'bg-green-50 border border-green-200' :
+                    'bg-blue-50 border border-blue-200'
+                }`}
             >
               {getInsightIcon(insight.type)}
               <p className='flex-1 text-gray-800'>{insight.message}</p>
@@ -277,9 +282,9 @@ const PredictionChart = ({ compact = false }) => {
       {/* Method Badge */}
       <div className='mt-4 text-xs text-gray-500 flex items-center justify-between'>
         <span>
-          🧠 Powered by {pred.method.includes('linear') ? 'Linear Regression' : 
-                        pred.method.includes('polynomial') ? 'Polynomial Regression' : 
-                        'Moving Average'} ML
+          🧠 Powered by {pred.method.includes('linear') ? 'Linear Regression' :
+            pred.method.includes('polynomial') ? 'Polynomial Regression' :
+              'Moving Average'} ML
         </span>
         <span>
           {prediction.historical.months.length} months analyzed
