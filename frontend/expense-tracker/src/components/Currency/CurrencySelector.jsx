@@ -33,7 +33,7 @@ const CurrencySelector = ({ value, onChange, label = "Currency", required = fals
     return (
       <div className='input-group'>
         <label className='input-label'>{label}</label>
-        <div className='px-4 py-2 border rounded-lg bg-gray-50'>Loading...</div>
+        <div className='px-4 py-2 border rounded-lg' style={{ backgroundColor: '#1E293B', borderColor: 'rgba(148,163,184,0.12)', color: '#94A3B8' }}>Loading...</div>
       </div>
     )
   }
@@ -47,7 +47,7 @@ const CurrencySelector = ({ value, onChange, label = "Currency", required = fals
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className='w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary'
+        className='w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary' style={{ backgroundColor: '#1E293B', borderColor: 'rgba(148,163,184,0.12)', color: '#F1F5F9' }}
       >
         <option value="">Select Currency</option>
         {currencies.map((currency) => (

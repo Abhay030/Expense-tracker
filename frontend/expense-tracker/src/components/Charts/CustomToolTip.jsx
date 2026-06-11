@@ -3,10 +3,10 @@ import React from 'react'
 const CustomToolTip = ({active , payload}) => {
   if(active && payload && payload.length) {
     return (
-        <div className='bg-white shadow-md rounded-lg p-2 border border-gray-300'>
-            <p className='text-xs font-semibold text-purple-800 mb-1 '>{payload[0].name}</p>
-            <p className='text-sm text-gray-600'>
-                Amount:{" "} <span className='text-sm font-medium text-gray-900'>${payload[0].value}</span>
+        <div className='shadow-xl rounded-lg p-3' style={{ backgroundColor: '#1A2332', border: '1px solid rgba(148,163,184,0.12)' }}>
+            <p className='text-xs font-semibold mb-1' style={{ color: '#8B5CF6' }}>{payload[0].name}</p>
+            <p className='text-sm' style={{ color: '#94A3B8' }}>
+                Amount:{" "} <span className='text-sm font-medium' style={{ color: '#F1F5F9' }}>${payload[0].value}</span>
             </p>
         </div>
       )

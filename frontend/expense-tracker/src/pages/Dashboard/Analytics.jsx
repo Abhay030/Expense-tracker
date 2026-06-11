@@ -16,7 +16,7 @@ const Analytics = () => {
 
   const [loading, setLoading] = useState(false)
   const [period, setPeriod] = useState('monthly')
-  const [months, setMonths] = useState(6)
+  const [months, setMonths] = useState("6")
   
   const [spendingTrends, setSpendingTrends] = useState(null)
   const [categoryBreakdown, setCategoryBreakdown] = useState(null)
@@ -157,7 +157,7 @@ const Analytics = () => {
             <select 
               value={period} 
               onChange={(e) => setPeriod(e.target.value)}
-              className='px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary'
+              className='px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary' style={{ backgroundColor: '#1E293B', borderColor: 'rgba(148,163,184,0.12)', color: '#F1F5F9' }}
             >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
@@ -167,7 +167,7 @@ const Analytics = () => {
             <select 
               value={months} 
               onChange={(e) => setMonths(e.target.value)}
-              className='px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary'
+              className='px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary' style={{ backgroundColor: '#1E293B', borderColor: 'rgba(148,163,184,0.12)', color: '#F1F5F9' }}
             >
               <option value="3">Last 3 Months</option>
               <option value="6">Last 6 Months</option>

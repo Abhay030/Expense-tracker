@@ -8,6 +8,7 @@ const ExpenseSchema = new mongoose.Schema({
     currency: { type: String, default: 'USD' },
     description: { type: String }, // For AI categorization
     date: { type: Date, default: Date.now },
+    isSample: { type: Boolean, default: false },
     aiSuggestion: {
         category: { type: String },
         confidence: { type: Number },

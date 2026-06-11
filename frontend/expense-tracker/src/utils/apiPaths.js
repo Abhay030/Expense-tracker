@@ -43,4 +43,9 @@ export const API_PATHS = {
     IMAGE : {
         UPLOAD_IMAGE: "/api/v1/auth/upload-image",
     },
+    SAMPLE_DATA: {
+        POPULATE: "/api/v1/sample-data/populate",
+        CLEAR: "/api/v1/sample-data/clear",
+        STATUS: "/api/v1/sample-data/status",
+    },
 }

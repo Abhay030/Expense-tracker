@@ -78,10 +78,10 @@ const SignUp = () => {
   return (
     <AuthLayout>
       <div className='lg:w-[100%] h-auto md:h-full mt-10 md:mt-0 flex flex-col justify-center'>
-        <h3 className='text-2xl font-bold text-slate-800 tracking-tight'>
+        <h3 className='text-2xl font-bold tracking-tight' style={{ color: '#F1F5F9' }}>
           Create an Account
         </h3>
-        <p className='text-[14px] text-slate-500 mt-[5px] mb-8'>
+        <p className='text-[14px] mt-[5px] mb-8' style={{ color: '#94A3B8' }}>
           Join us and start tracking your expenses
         </p>
 
@@ -118,9 +118,9 @@ const SignUp = () => {
             Sign Up
           </button>
 
-          <p className='text-[14px] text-slate-600 mt-5 text-center'>
+          <p className='text-[14px] mt-5 text-center' style={{ color: '#94A3B8' }}>
             Already have an account? {" "}
-            <Link className='font-medium text-primary underline' to="/Login">Login</Link>
+            <Link className='font-medium underline' style={{ color: '#8B5CF6' }} to="/Login">Login</Link>
 
           </p>
         </form>

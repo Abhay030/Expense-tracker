@@ -7,6 +7,7 @@ const IncomeSchema = new mongoose.Schema({
     amount: { type: Number, required: true },
     currency: { type: String, default: 'USD' },
     date: { type: Date, default: Date.now },
+    isSample: { type: Boolean, default: false },
 }, { timestamps: true });
 
 // Compound index for fast per-user queries and date-range aggregations

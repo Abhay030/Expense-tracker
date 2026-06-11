@@ -8,11 +8,17 @@ const RecentIncomeWithChart = ({data , totalIncome}) => {
 
     const [chartData, setChartData] = useState([]);
     const prepareChartData = () => {
-        const dataArr = data?.map((item) => ({
-            name: item?.source,
-            amount: item?.amount,
-        }))
-        
+        // Aggregate by source so each source appears once in the pie chart
+        const grouped = {};
+        data?.forEach((item) => {
+            const source = item?.source || 'Unknown';
+            grouped[source] = (grouped[source] || 0) + (Number(item?.amount) || 0);
+        });
+        const dataArr = Object.entries(grouped).map(([name, amount]) => ({
+            name,
+            amount,
+        }));
+
         setChartData(dataArr)
     };
 

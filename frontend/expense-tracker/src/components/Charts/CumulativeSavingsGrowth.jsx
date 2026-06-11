@@ -21,8 +21,8 @@ const CumulativeSavingsGrowth = ({ months = 12 }) => {
         `${API_PATHS.ANALYTICS.INCOME_VS_EXPENSE}?months=${months}`
       )
 
-      if (response.data.monthlyData) {
-        processSavingsGrowth(response.data.monthlyData)
+      if (response.data.comparison) {
+        processSavingsGrowth(response.data.comparison)
       }
     } catch (error) {
       console.error('Error fetching savings data:', error)

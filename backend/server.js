@@ -15,6 +15,7 @@ const expenseRoutes = require("./routes/expenseRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const currencyRoutes = require("./routes/currencyRoutes");
+const sampleDataRoutes = require("./routes/sampleDataRoutes");
 
 // Error handler
 const { errorHandler, AppError } = require("./middleware/errorHandler");
@@ -95,6 +96,7 @@ app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/currency", currencyRoutes);
+app.use("/api/v1/sample-data", sampleDataRoutes);
 
 // Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

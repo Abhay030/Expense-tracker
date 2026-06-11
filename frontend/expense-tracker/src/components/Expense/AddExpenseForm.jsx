@@ -109,11 +109,12 @@ const AddExpenseForm = ({ onAddExpense }) => {
     
     // Add all items from queue
     const addAllFromQueue = () => {
+        const count = expenseQueue.length;
         expenseQueue.forEach(item => {
             onAddExpense(item);
         });
         setExpenseQueue([]);
-        toast.success(`✅ Added ${expenseQueue.length} expenses!`);
+        toast.success(`✅ Added ${count} expenses!`);
     }
 
     return (

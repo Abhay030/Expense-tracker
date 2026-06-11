@@ -1,4 +1,3 @@
-const user = require('../models/User');
 const Income = require('../models/Income');
 const XLSX = require('xlsx');
 const cache = require('../middleware/cache');
@@ -22,8 +21,6 @@ exports.addIncome = async (req, res) => {
             date
         })
 
-        await newIncome.save();
-
         // Invalidate cached dashboard/analytics data for this user
         cache.invalidateUser(userId);
 
@@ -41,13 +38,26 @@ exports.getAllIncome = async (req, res) => {
         const limit = parseInt(req.query.limit) || 0; // 0 = no limit (backward compatible)
         const skip = limit > 0 ? (page - 1) * limit : 0;
 
-        let query = Income.find({ userId }).sort({ date: -1 }).lean();
+        // Build date filter from query params (used by sankey chart)
+        const filter = { userId };
+        if (req.query.startDate || req.query.endDate) {
+            filter.date = {};
+            if (req.query.startDate) filter.date.$gte = new Date(req.query.startDate);
+            if (req.query.endDate) filter.date.$lte = new Date(req.query.endDate);
+        } else if (req.query.months) {
+            const months = parseInt(req.query.months);
+            const since = new Date();
+            since.setMonth(since.getMonth() - months);
+            filter.date = { $gte: since };
+        }
+
+        let query = Income.find(filter).sort({ date: -1 }).lean();
         if (limit > 0) {
             query = query.skip(skip).limit(limit);
         }
         const incomes = await query;
 
-        const total = limit > 0 ? await Income.countDocuments({ userId }) : incomes.length;
+        const total = limit > 0 ? await Income.countDocuments(filter) : incomes.length;
 
         res.status(200).json({
             incomes,

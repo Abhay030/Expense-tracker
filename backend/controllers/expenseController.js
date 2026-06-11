@@ -1,4 +1,3 @@
-const user = require('../models/User');
 const Expense = require('../models/Expense');
 const XLSX = require('xlsx');
 const cache = require('../middleware/cache');
@@ -20,7 +19,7 @@ exports.addExpense = async (req, res) => {
         if (!category || !amount || !date) {
             return res.status(400).json({ message: 'Please fill all the fields' });
         }
-        // create new income
+        // create new expense
         const newExpense = await Expense.create({
             userId,
             icon,
@@ -28,8 +27,6 @@ exports.addExpense = async (req, res) => {
             amount,
             date
         })
-
-        await newExpense.save();
 
         // Invalidate cached dashboard/analytics data
         cache.invalidateUser(userId);
@@ -48,13 +45,26 @@ exports.getAllExpense = async (req, res) => {
         const limit = parseInt(req.query.limit) || 0; // 0 = no limit (backward compatible)
         const skip = limit > 0 ? (page - 1) * limit : 0;
 
-        let query = Expense.find({ userId }).sort({ date: -1 }).lean();
+        // Build date filter from query params (used by heatmap & sankey)
+        const filter = { userId };
+        if (req.query.startDate || req.query.endDate) {
+            filter.date = {};
+            if (req.query.startDate) filter.date.$gte = new Date(req.query.startDate);
+            if (req.query.endDate) filter.date.$lte = new Date(req.query.endDate);
+        } else if (req.query.months) {
+            const months = parseInt(req.query.months);
+            const since = new Date();
+            since.setMonth(since.getMonth() - months);
+            filter.date = { $gte: since };
+        }
+
+        let query = Expense.find(filter).sort({ date: -1 }).lean();
         if (limit > 0) {
             query = query.skip(skip).limit(limit);
         }
         const expenses = await query;
 
-        const total = limit > 0 ? await Expense.countDocuments({ userId }) : expenses.length;
+        const total = limit > 0 ? await Expense.countDocuments(filter) : expenses.length;
 
         res.status(200).json({
             expenses,

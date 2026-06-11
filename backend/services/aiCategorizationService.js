@@ -36,12 +36,12 @@ async function categorizeExpenseWithAI(description, amount = null) {
     try {
         // Normalize description for caching
         const cacheKey = description.toLowerCase().trim();
-        
+
         // Check cache first
         if (categorizationCache.has(cacheKey)) {
             const cached = categorizationCache.get(cacheKey);
             if (Date.now() - cached.timestamp < CACHE_EXPIRY_MS) {
-                console.log(`Cache hit for: ${description}`);
+
                 return cached.result;
             } else {
                 categorizationCache.delete(cacheKey);
@@ -81,7 +81,7 @@ async function categorizeExpenseWithAI(description, amount = null) {
 
     } catch (error) {
         console.error('AI Categorization Error:', error.message);
-        
+
         // Fallback to keyword-based categorization
         return fallbackCategorization(description);
     }
@@ -92,7 +92,7 @@ async function categorizeExpenseWithAI(description, amount = null) {
  */
 function createCategorizationPrompt(description, amount) {
     const categoriesList = EXPENSE_CATEGORIES.join(', ');
-    
+
     let prompt = `Categorize this expense into ONE of these categories: [${categoriesList}]
 
 Expense Description: "${description}"`;
@@ -126,7 +126,7 @@ function parseAIResponse(aiResponse, originalDescription) {
     try {
         // Extract JSON from response (handle cases where AI adds extra text)
         let jsonStr = aiResponse;
-        
+
         // Try to find JSON in the response
         const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
@@ -236,7 +236,7 @@ function getAvailableCategories() {
  */
 function clearCache() {
     categorizationCache.clear();
-    console.log('AI categorization cache cleared');
+
 }
 
 /**

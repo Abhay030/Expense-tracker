@@ -239,9 +239,9 @@ function identifyCategory(merchant, fullText) {
         return 'Food & Dining';
     }
     
-    // Groceries
+    // Groceries → maps to Food & Dining for consistency with expense categories
     if (merchantLower.match(/grocery|supermarket|market|walmart|target|costco|whole foods|trader joe/)) {
-        return 'Groceries';
+        return 'Food & Dining';
     }
     
     // Transportation

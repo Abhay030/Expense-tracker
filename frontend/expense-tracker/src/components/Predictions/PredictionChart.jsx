@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import axiosInstance from '../../utils/axiosInstance'
 import { API_PATHS } from '../../utils/apiPaths'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, ComposedChart } from 'recharts'
@@ -9,14 +9,16 @@ const PredictionChart = ({ compact = false }) => {
   const [prediction, setPrediction] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const fetchingRef = useRef(false)
 
   useEffect(() => {
     fetchPrediction()
   }, [])
 
   const fetchPrediction = async () => {
-    if (loading) return
+    if (fetchingRef.current) return
 
+    fetchingRef.current = true
     setLoading(true)
     setError(null)
 
@@ -32,6 +34,7 @@ const PredictionChart = ({ compact = false }) => {
       console.error('Error fetching prediction:', err)
       setError('Failed to load predictions. Add more expense data.')
     } finally {
+      fetchingRef.current = false
       setLoading(false)
     }
   }

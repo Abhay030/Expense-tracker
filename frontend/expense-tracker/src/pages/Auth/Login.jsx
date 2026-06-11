@@ -60,8 +60,8 @@ const Login = () => {
   return (
     <AuthLayout>
       <div className='lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center'>
-        <h3 className='text-2xl font-bold text-slate-800 tracking-tight'>Welcome Back</h3>
-        <p className='text-[14px] text-slate-500 mt-[5px] mb-8'>Please enter your details to login</p>
+        <h3 className='text-2xl font-bold tracking-tight' style={{ color: '#F1F5F9' }}>Welcome Back</h3>
+        <p className='text-[14px] mt-[5px] mb-8' style={{ color: '#94A3B8' }}>Please enter your details to login</p>
 
         <form onSubmit={handleLogin}>
           <Input
@@ -82,10 +82,9 @@ const Login = () => {
             LOGIN
           </button>
 
-          <p className='text-[14px] text-slate-600 mt-5 text-center'>
-            Don't have an account? {" "}
-            <Link className='font-medium text-primary underline' to="/signUp">Sign Up</Link>
-
+          <p className='text-[14px] mt-5 text-center' style={{ color: '#94A3B8' }}>
+            Don't have an account?{" "}
+            <Link className='font-medium underline' style={{ color: '#8B5CF6' }} to="/signUp">Sign Up</Link>
           </p>
         </form>
       </div>

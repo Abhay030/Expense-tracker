@@ -35,7 +35,7 @@ const CashFlowSankey = ({ months = 1 }) => {
     let totalIncome = 0
 
     incomes.forEach(income => {
-      const category = income.category || 'Other Income'
+      const category = income.source || 'Other Income'
       incomeByCategory[category] = (incomeByCategory[category] || 0) + income.amount
       totalIncome += income.amount
     })

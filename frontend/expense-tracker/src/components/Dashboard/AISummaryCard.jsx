@@ -25,7 +25,7 @@ const AISummaryCard = () => {
       if (response.data.success) {
         setSummary(response.data)
       } else {
-        setError('Unable to generate summary')
+        setError(response.data.message || response.data.error || 'Unable to generate summary')
       }
     } catch (err) {
       console.error('Error fetching AI summary:', err)

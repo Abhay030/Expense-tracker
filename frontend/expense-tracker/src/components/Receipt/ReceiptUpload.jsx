@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import axiosInstance from '../../utils/axiosInstance'
 import { API_PATHS } from '../../utils/apiPaths'
 import { LuUpload, LuX, LuCheck, LuRefreshCw, LuScan, LuChevronLeft, LuChevronRight } from 'react-icons/lu'
-import { toast } from 'react-toastify'
+import toast from 'react-hot-toast'
 
 const ReceiptUpload = ({ onDataExtracted, onClose }) => {
   const [selectedFile, setSelectedFile] = useState(null)
@@ -150,22 +150,21 @@ const ReceiptUpload = ({ onDataExtracted, onClose }) => {
   }
 
   return (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto'>
+    <div className='fixed inset-0 flex items-center justify-center z-50 p-4' style={{ background: 'rgba(0,0,0,0.7)' }}>
+      <div className='rounded-lg shadow-2xl shadow-black/40 max-w-4xl w-full max-h-[90vh] overflow-y-auto' style={{ backgroundColor: '#1A2332', border: '1px solid rgba(148,163,184,0.12)' }}>
         {/* Header */}
-        <div className='flex items-center justify-between p-6 border-b'>
+        <div className='flex items-center justify-between p-6' style={{ borderBottom: '1px solid rgba(148,163,184,0.08)' }}>
           <div className='flex items-center gap-3'>
-            <LuScan className='text-2xl text-indigo-600' />
+            <LuScan className='text-2xl' style={{ color: '#8B5CF6' }} />
             <div>
-              <h2 className='text-xl font-bold text-gray-900'>Upload Receipt</h2>
-              <p className='text-sm text-gray-600'>Automatically extract expense details from your receipt</p>
+              <h2 className='text-xl font-bold' style={{ color: '#F1F5F9' }}>Upload Receipt</h2>
+              <p className='text-sm' style={{ color: '#94A3B8' }}>Automatically extract expense details from your receipt</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
-          >
-            <LuX className='text-gray-600' />
+          <button onClick={onClose} className='p-2 rounded-lg transition-colors' style={{ color: '#64748B' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#F1F5F9'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B'; }}>
+            <LuX />
           </button>
         </div>
 
@@ -174,18 +173,18 @@ const ReceiptUpload = ({ onDataExtracted, onClose }) => {
           {!selectedFile && (
             <div
               className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-                dragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'
+                dragActive ? 'border-primary' : 'border-gray-700'
               }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
             >
-              <LuUpload className='mx-auto text-5xl text-gray-400 mb-4' />
-              <p className='text-lg font-semibold text-gray-700 mb-2'>
+              <LuUpload className='mx-auto text-5xl mb-4' style={{ color: '#64748B' }} />
+              <p className='text-lg font-semibold mb-2' style={{ color: '#F1F5F9' }}>
                 Drop your receipt image here
               </p>
-              <p className='text-sm text-gray-500 mb-4'>
+              <p className='text-sm mb-4' style={{ color: '#94A3B8' }}>
                 or click to browse (JPG, PNG, GIF, BMP, WEBP - Max 10MB)
               </p>
               <label className='inline-block'>
@@ -195,7 +194,7 @@ const ReceiptUpload = ({ onDataExtracted, onClose }) => {
                   accept='image/*'
                   onChange={handleFileSelect}
                 />
-                <span className='px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 cursor-pointer inline-block'>
+                <span className='px-6 py-3 text-white rounded-lg cursor-pointer inline-block' style={{ background: 'linear-gradient(135deg, #8B5CF6, #6366F1)' }}>
                   Choose File
                 </span>
               </label>
@@ -207,8 +206,8 @@ const ReceiptUpload = ({ onDataExtracted, onClose }) => {
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               {/* Image Preview */}
               <div>
-                <h3 className='font-semibold text-gray-900 mb-3'>Receipt Image</h3>
-                <div className='border rounded-lg p-4'>
+                <h3 className='font-semibold mb-3' style={{ color: '#F1F5F9' }}>Receipt Image</h3>
+                <div className='rounded-lg p-4' style={{ border: '1px solid rgba(148,163,184,0.12)' }}>
                   <img
                     src={previewUrl}
                     alt='Receipt preview'

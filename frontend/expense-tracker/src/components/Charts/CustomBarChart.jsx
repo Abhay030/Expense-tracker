@@ -20,14 +20,16 @@ const CustomBarChart = ({ data }) => {
   // Custom tooltip inside component
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
+      const item = payload[0].payload;
+      const label = item.category || item.source || 'Unknown';
       return (
         <div className='bg-white shadow-xl rounded-lg p-3 border border-slate-200'>
           <p className='text-[13px] font-semibold text-slate-800 mb-1 tracking-tight'>
-            {payload[0].payload.category}
+            {label}
           </p>
           <p className='text-sm text-gray-600'>
             Amount: <span className='text-sm font-medium text-gray-900'>
-              ${payload[0].payload.amount}
+              ${item.amount}
             </span>
           </p>
         </div>
@@ -37,7 +39,7 @@ const CustomBarChart = ({ data }) => {
   };
 
   return (
-    <div className='bg-white mt-6'>
+    <div className='mt-6'>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
           <CartesianGrid stroke="none" />
@@ -62,5 +64,3 @@ const CustomBarChart = ({ data }) => {
 };
 
 export default CustomBarChart;
-
-CustomBarChart.jsx

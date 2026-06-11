@@ -19,7 +19,7 @@ const CustomLineChart = ({ data }) => {
       return (
         <div className='bg-white shadow-md rounded-lg p-2 border-gray-300'>
           <p className='text-xs font-semibold text-shadow-purple-800 mb-1'>
-            {payload[0].payload.category}
+            {payload[0].payload.category || payload[0].payload.source || 'Unknown'}
           </p>
           <p className='text-sm text-gray-600'>
             Amount: <span className='text-sm font-medium text-gray-900'>
@@ -33,7 +33,7 @@ const CustomLineChart = ({ data }) => {
   };
 
   return (
-    <div className='bg-white mt-6'>
+    <div className='mt-6'>
       <ResponsiveContainer width="100%" height={300}>
         <AreaChart data={data}>
           <defs>

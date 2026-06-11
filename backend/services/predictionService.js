@@ -171,6 +171,19 @@ async function generateSimplePrediction(userId) {
         const monthlyTotals = Object.values(monthlyData);
         const average = monthlyTotals.reduce((a, b) => a + b, 0) / monthlyTotals.length;
         
+        // Generate forecast month labels
+        const lastMonthKey = Object.keys(monthlyData).sort().pop();
+        const forecast_months = [];
+        if (lastMonthKey) {
+            const [year, month] = lastMonthKey.split('-').map(Number);
+            for (let i = 1; i <= 3; i++) {
+                const d = new Date(year, month + i - 1, 1);
+                forecast_months.push(
+                    d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+                );
+            }
+        }
+
         // Simple prediction
         return {
             success: true,
@@ -184,6 +197,7 @@ async function generateSimplePrediction(userId) {
                 months: Object.keys(monthlyData),
                 values: monthlyTotals
             },
+            forecast_months,
             statistics: {
                 average: average,
                 min: Math.min(...monthlyTotals),

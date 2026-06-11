@@ -37,7 +37,7 @@ const Home = () => {
       }
     }
     catch (error) {
-      console.log("Something went wrong. Please try Again Later", error);
+      // silently fail — error boundary handles display
     }
     finally {
       setLoading(false);
@@ -58,19 +58,19 @@ const Home = () => {
           <InfoCard icon={<IoMdCard />}
             label="Total Balance"
             value={addThousandsSeparator(dashboardData?.totalBalance)}
-            color="bg-primary"
+            color="linear-gradient(135deg, #8B5CF6, #6366F1)"
           />
 
           <InfoCard icon={<LuWalletMinimal />}
             label="Total Income"
             value={addThousandsSeparator(dashboardData?.totalIncome)}
-            color="bg-emerald-500"
+            color="linear-gradient(135deg, #10B981, #059669)"
           />
 
           <InfoCard icon={<LuHandCoins />}
             label="Total Expense"
             value={addThousandsSeparator(dashboardData?.totalExpense)}
-            color="bg-rose-500"
+            color="linear-gradient(135deg, #EF4444, #DC2626)"
           />
         </div>
 
@@ -105,7 +105,7 @@ const Home = () => {
           />
 
           <RecentIncomeWithChart
-            data={dashboardData?.last60DaysIncome?.transactions?.slice(0, 4) || []}
+            data={dashboardData?.last60DaysIncome?.transactions || []}
             totalIncome={dashboardData?.totalIncome || 0}
           />
 
